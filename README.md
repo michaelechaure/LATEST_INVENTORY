@@ -1,2 +1,2 @@
-# LATEST_INVENTORY.html
-Main HTML file
+# index.html
+Inventory Tracker

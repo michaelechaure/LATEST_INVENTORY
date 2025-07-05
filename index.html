@@ -24,9 +24,10 @@
       background-color: #fffef9;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       border-radius: 16px;
-      padding: 30px 20px;
+      padding: 20px 10px;
       width: 100%;
-      max-width: 1200px;
+      max-width: 100%;
+      overflow-x: auto;
     }
 
     .header-with-logos {
@@ -51,6 +52,8 @@
     .print-container {
       display: flex;
       justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-bottom: 10px;
     }
 
@@ -63,8 +66,6 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 10px;
-      margin-left: 10px;
     }
 
     .date-container {
@@ -74,6 +75,7 @@
       margin-bottom: 20px;
       font-size: 16px;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .date-container input[type="date"] {
@@ -83,17 +85,23 @@
       border-radius: 6px;
     }
 
+    .table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+    }
+
     table {
+      min-width: 900px;
       width: 100%;
       border-collapse: collapse;
-      table-layout: auto;
     }
 
     th, td {
       border: 1px solid #ccc;
       padding: 6px 10px;
       text-align: center;
-      font-size: 13px;
+      position: relative;
+      overflow: hidden;
     }
 
     td[contenteditable="true"] {
@@ -114,69 +122,107 @@
       background-color: #ffe0b2;
     }
 
+    th:nth-child(2), td:nth-child(2) {
+      width: 100px;
+      max-width: 100px;
+      white-space: nowrap;
+      font-size: 16px;
+    }
+
     thead th {
-      font-size: 14px;
+      font-size: 16px;
       background-color: #ffe082;
     }
 
+    .resizer {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      cursor: col-resize;
+      z-index: 1;
+    }
+
+    th.product .resizer,
+    th:nth-child(2) .resizer,
+    th:nth-child(5) .resizer,
+    th:nth-child(9) .resizer {
+      display: none;
+    }
+
     #inventoryTable tr:last-child td {
-      font-size: 16px;
+      font-size: 20px;
       padding: 10px;
       font-weight: bold;
       color: #d84315;
       background-color: #fff8e1;
     }
 
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        border-radius: 10px;
+        padding: 15px 5px;
+      }
+
+      .logo {
+        width: 50px;
+      }
+
+      .header-with-logos h1 {
+        font-size: 1.2em;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      .print-btn,
+      .compute-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+
+      .date-container {
+        flex-direction: column;
+        align-items: flex-start;
+        font-size: 14px;
+      }
+
+      .date-container input[type="date"] {
+        width: 100%;
+      }
+    }
+
     @media print {
       body {
-        zoom: 100%;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        background: white !important;
+        zoom: 85%;
       }
 
       @page {
         size: A4 landscape;
-        margin: 8mm;
+        margin: 10mm;
       }
 
-      .container {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
+      table, th, td {
+        border: 1px solid #000 !important;
+        border-collapse: collapse !important;
+      }
+
+      table {
+        width: 100%;
+        font-size: 11px;
       }
 
       .print-btn,
       .compute-btn,
-      .header-with-logos,
-      .logo {
-        display: none !important;
-      }
-
-      .date-container {
-        justify-content: flex-start;
-        font-size: 12px !important;
-        margin-bottom: 5px !important;
-      }
-
-      table, th, td {
-        border: 1px solid black !important;
-        border-collapse: collapse !important;
-        font-size: 9.5px !important;
-      }
-
-      th, td {
-        padding: 3px 5px !important;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .logo {
-        width: 60px;
-      }
-
-      .header-with-logos h1 {
-        font-size: 1.5em;
+      .date-container,
+      .header-with-logos {
+        display: none;
       }
     }
   </style>
@@ -199,22 +245,23 @@
       <input type="date" id="inventoryDate" name="inventoryDate">
     </div>
 
-    <table id="inventoryTable">
-      <thead>
-        <tr>
-          <th>ITEM/PRODUCT</th>
-          <th>PRICE</th>
-          <th>BEGINNING ORDER</th>
-          <th>DELIVERY</th>
-          <th>TOTAL ORDERS</th>
-          <th>ENDING</th>
-          <th>SPOILAGE</th>
-          <th>SOLD</th>
-          <th>TOTAL</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
+    <div class="table-wrapper">
+      <table id="inventoryTable">
+        <thead>
+          <tr>
+            <th>ITEM/PRODUCT</th>
+            <th>PRICE</th>
+            <th>BEGINNING ORDER</th>
+            <th>DELIVERY</th>
+            <th>TOTAL ORDERS</th>
+            <th>ENDING</th>
+            <th>SPOILAGE</th>
+            <th>SOLD</th>
+            <th>TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
 <td contenteditable="false">₱18.00</td>
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
@@ -493,12 +540,13 @@
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
 <td contenteditable="false"></td></tr>
-        <tr>
-          <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
-          <td id="grandTotal" contenteditable="false"></td>
-        </tr>
-      </tbody>
-    </table>
+          <tr>
+            <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
+            <td id="grandTotal" contenteditable="false"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -522,6 +570,8 @@
       cells[4].innerText = totalOrders || "";
       cells[7].innerText = sold || "";
       cells[8].innerText = total ? "₱" + total.toFixed(2) : "";
+
+      updateGrandTotal();
     }
 
     function updateGrandTotal() {
@@ -538,22 +588,30 @@
 
     function computeAll() {
       document.querySelectorAll("#inventoryTable tbody tr").forEach(row => {
-        recalculateRow(row);
+        const editable = row.querySelector("td[contenteditable='true']");
+        if (editable) recalculateRow(row);
       });
-      updateGrandTotal();
     }
 
-    document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {
-      cell.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          const row = this.parentElement;
-          const cellIndex = Array.from(row.children).indexOf(this);
-          const nextRow = row.nextElementSibling;
-          if (nextRow && nextRow.children[cellIndex] && nextRow.children[cellIndex].getAttribute("contenteditable") === "true") {
-            nextRow.children[cellIndex].focus();
-          }
-        }
+    // Column resizing (optional, if using resizers)
+    const headers = document.querySelectorAll("th");
+    headers.forEach((th) => {
+      const resizer = th.querySelector(".resizer");
+      if (!resizer) return;
+      let startX, startWidth;
+      const mouseMoveHandler = (e) => {
+        const newWidth = startWidth + (e.clientX - startX);
+        th.style.width = newWidth + "px";
+      };
+      const mouseUpHandler = () => {
+        document.removeEventListener("mousemove", mouseMoveHandler);
+        document.removeEventListener("mouseup", mouseUpHandler);
+      };
+      resizer.addEventListener("mousedown", (e) => {
+        startX = e.clientX;
+        startWidth = th.offsetWidth;
+        document.addEventListener("mousemove", mouseMoveHandler);
+        document.addEventListener("mouseup", mouseUpHandler);
       });
     });
   </script>

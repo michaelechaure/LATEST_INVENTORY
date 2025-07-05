@@ -6,10 +6,6 @@
   <title>Eggspert Inventory</title>
   <link rel="icon" type="image/png" href="logo.png">
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -57,7 +53,6 @@
       display: flex;
       justify-content: flex-end;
       margin-bottom: 10px;
-      flex-wrap: wrap;
     }
 
     .print-btn,
@@ -69,7 +64,8 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin: 5px;
+      margin-bottom: 10px;
+      margin-left: 10px;
     }
 
     .date-container {
@@ -79,7 +75,6 @@
       margin-bottom: 20px;
       font-size: 16px;
       gap: 8px;
-      flex-wrap: wrap;
     }
 
     .date-container input[type="date"] {
@@ -87,6 +82,10 @@
       padding: 4px 8px;
       border: 1px solid #ccc;
       border-radius: 6px;
+    }
+
+    .table-scroll-wrapper {
+      overflow-x: auto;
     }
 
     table {
@@ -111,13 +110,43 @@
       font-weight: bold;
     }
 
+    /* Sticky Header for 1st and 2nd columns */
+    th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background-color: #ffe082;
+    }
+
+    th:nth-child(2) {
+      position: sticky;
+      left: 180px;
+      z-index: 3;
+      background-color: #ffe082;
+    }
+
+    /* Sticky first column cells (Product) */
     td.product {
-      white-space: nowrap;
-      max-width: 180px;
-      width: 180px;
-      text-align: left;
-      font-size: 12.5px;
+      position: sticky;
+      left: 0;
+      z-index: 2;
       background-color: #ffe0b2;
+      text-align: left;
+      width: 180px;
+      min-width: 180px;
+      max-width: 180px;
+      font-size: 12.3px;
+    }
+
+    /* Sticky second column cells (Price) */
+    td:nth-child(2) {
+      position: sticky;
+      left: 180px;
+      z-index: 2;
+      background-color: #fff8dc;
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
     }
 
     thead th {
@@ -176,44 +205,17 @@
       }
     }
 
-    @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-
-      .container {
-        padding: 15px 10px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-        overflow-x: auto;
+    @media (max-width: 600px) {
+      .logo {
+        width: 60px;
       }
 
       .header-with-logos h1 {
         font-size: 1.5em;
       }
 
-      .logo {
-        width: 60px;
-      }
-
-      .print-btn,
-      .compute-btn {
-        font-size: 14px;
-        padding: 8px 12px;
-      }
-
-      .date-container {
-        font-size: 14px;
-      }
-
-      table {
-        display: block;
-        overflow-x: auto;
-        font-size: 12px;
-      }
-
-      th, td {
-        white-space: nowrap;
+      .container {
+        padding: 10px;
       }
     }
   </style>
@@ -236,22 +238,23 @@
       <input type="date" id="inventoryDate" name="inventoryDate">
     </div>
 
-    <table id="inventoryTable">
-      <thead>
-        <tr>
-          <th>ITEM/PRODUCT</th>
-          <th>PRICE</th>
-          <th>BEGINNING ORDER</th>
-          <th>DELIVERY</th>
-          <th>TOTAL ORDERS</th>
-          <th>ENDING</th>
-          <th>SPOILAGE</th>
-          <th>SOLD</th>
-          <th>TOTAL</th>
-        </tr>
-      </thead>
-      <tbody>
-       <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
+    <div class="table-scroll-wrapper">
+      <table id="inventoryTable">
+        <thead>
+          <tr>
+            <th>ITEM/PRODUCT</th>
+            <th>PRICE</th>
+            <th>BEGINNING ORDER</th>
+            <th>DELIVERY</th>
+            <th>TOTAL ORDERS</th>
+            <th>ENDING</th>
+            <th>SPOILAGE</th>
+            <th>SOLD</th>
+            <th>TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
 <td contenteditable="false">₱18.00</td>
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
@@ -530,12 +533,13 @@
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
 <td contenteditable="false"></td></tr>
-        <tr>
-          <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
-          <td id="grandTotal" contenteditable="false"></td>
-        </tr>
-      </tbody>
-    </table>
+          <tr>
+            <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
+            <td id="grandTotal" contenteditable="false"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -586,11 +590,8 @@
           e.preventDefault();
           const row = this.parentElement;
           const cellIndex = Array.from(row.children).indexOf(this);
-          let nextRow = row.nextElementSibling;
-          while (nextRow && (!nextRow.children[cellIndex] || nextRow.children[cellIndex].getAttribute("contenteditable") !== "true")) {
-            nextRow = nextRow.nextElementSibling;
-          }
-          if (nextRow && nextRow.children[cellIndex]) {
+          const nextRow = row.nextElementSibling;
+          if (nextRow && nextRow.children[cellIndex] && nextRow.children[cellIndex].getAttribute("contenteditable") === "true") {
             nextRow.children[cellIndex].focus();
           }
         }

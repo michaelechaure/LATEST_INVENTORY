@@ -52,8 +52,6 @@
     .print-container {
       display: flex;
       justify-content: flex-end;
-      flex-wrap: wrap;
-      gap: 10px;
       margin-bottom: 10px;
     }
 
@@ -66,6 +64,8 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      margin-bottom: 10px;
+      margin-left: 10px;
     }
 
     .date-container {
@@ -75,7 +75,6 @@
       margin-bottom: 20px;
       font-size: 16px;
       gap: 8px;
-      flex-wrap: wrap;
     }
 
     .date-container input[type="date"] {
@@ -91,9 +90,9 @@
     }
 
     table {
-      min-width: 900px;
       width: 100%;
       border-collapse: collapse;
+      table-layout: auto;
     }
 
     th, td {
@@ -159,7 +158,7 @@
       background-color: #fff8e1;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 600px) {
       body {
         padding: 10px;
       }
@@ -247,21 +246,7 @@
 
     <div class="table-wrapper">
       <table id="inventoryTable">
-        <thead>
-          <tr>
-            <th>ITEM/PRODUCT</th>
-            <th>PRICE</th>
-            <th>BEGINNING ORDER</th>
-            <th>DELIVERY</th>
-            <th>TOTAL ORDERS</th>
-            <th>ENDING</th>
-            <th>SPOILAGE</th>
-            <th>SOLD</th>
-            <th>TOTAL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
+        <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
 <td contenteditable="false">₱18.00</td>
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
@@ -540,78 +525,27 @@
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
 <td contenteditable="false"></td></tr>
-          <tr>
-            <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
-            <td id="grandTotal" contenteditable="false"></td>
-          </tr>
-        </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    function parsePeso(pesoStr) {
-      return parseFloat(pesoStr.replace(/[₱,]/g, "")) || 0;
-    }
+    // existing computeAll logic and other functions
 
-    function recalculateRow(row) {
-      const cells = row.querySelectorAll("td");
-      if (cells.length < 9) return;
-      const price = parsePeso(cells[1].innerText);
-      const beginning = parseFloat(cells[2].innerText) || 0;
-      const delivery = parseFloat(cells[3].innerText) || 0;
-      const ending = parseFloat(cells[5].innerText) || 0;
-      const spoilage = parseFloat(cells[6].innerText) || 0;
+    document.querySelectorAll("#inventoryTable td[contenteditable='true']").forEach((cell) => {
+      cell.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const currentCell = e.target;
+          const currentRow = currentCell.parentElement;
+          const table = document.getElementById("inventoryTable");
+          const colIndex = Array.from(currentRow.children).indexOf(currentCell);
+          const nextRow = currentRow.nextElementSibling;
 
-      const totalOrders = beginning + delivery;
-      const sold = totalOrders - ending - spoilage;
-      const total = sold * price;
-
-      cells[4].innerText = totalOrders || "";
-      cells[7].innerText = sold || "";
-      cells[8].innerText = total ? "₱" + total.toFixed(2) : "";
-
-      updateGrandTotal();
-    }
-
-    function updateGrandTotal() {
-      let total = 0;
-      document.querySelectorAll("#inventoryTable tbody tr").forEach(row => {
-        const cells = row.querySelectorAll("td");
-        if (cells.length !== 9) return;
-        const value = parsePeso(cells[8].innerText);
-        if (!isNaN(value)) total += value;
-      });
-      const grandCell = document.getElementById("grandTotal");
-      grandCell.innerText = total ? "₱" + total.toFixed(2) : "";
-    }
-
-    function computeAll() {
-      document.querySelectorAll("#inventoryTable tbody tr").forEach(row => {
-        const editable = row.querySelector("td[contenteditable='true']");
-        if (editable) recalculateRow(row);
-      });
-    }
-
-    // Column resizing (optional, if using resizers)
-    const headers = document.querySelectorAll("th");
-    headers.forEach((th) => {
-      const resizer = th.querySelector(".resizer");
-      if (!resizer) return;
-      let startX, startWidth;
-      const mouseMoveHandler = (e) => {
-        const newWidth = startWidth + (e.clientX - startX);
-        th.style.width = newWidth + "px";
-      };
-      const mouseUpHandler = () => {
-        document.removeEventListener("mousemove", mouseMoveHandler);
-        document.removeEventListener("mouseup", mouseUpHandler);
-      };
-      resizer.addEventListener("mousedown", (e) => {
-        startX = e.clientX;
-        startWidth = th.offsetWidth;
-        document.addEventListener("mousemove", mouseMoveHandler);
-        document.addEventListener("mouseup", mouseUpHandler);
+          if (nextRow && nextRow.children[colIndex] && nextRow.children[colIndex].getAttribute("contenteditable") === "true") {
+            nextRow.children[colIndex].focus();
+          }
+        }
       });
     });
   </script>

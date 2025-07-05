@@ -1,0 +1,2 @@
+# LATEST_INVENTORY.html
+Main HTML file

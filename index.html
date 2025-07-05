@@ -28,6 +28,8 @@
       width: 100%;
       max-width: 1200px;
       overflow-x: auto;
+      overflow-y: auto;
+      max-height: 80vh;
     }
 
     .header-with-logos {
@@ -110,27 +112,22 @@
       font-weight: bold;
     }
 
-    /* Sticky Header for 1st and 2nd columns */
+    /* Sticky header */
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: #ffe082;
+      font-size: 14px;
+    }
+
+    /* Sticky 1st column (Product Name) */
+    td.product,
     th:first-child {
       position: sticky;
       left: 0;
-      z-index: 3;
+      z-index: 9;
       background-color: #ffe082;
-    }
-
-    th:nth-child(2) {
-      position: sticky;
-      left: 180px;
-      z-index: 3;
-      background-color: #ffe082;
-    }
-
-    /* Sticky first column cells (Product) */
-    td.product {
-      position: sticky;
-      left: 0;
-      z-index: 2;
-      background-color: #ffe0b2;
       text-align: left;
       width: 180px;
       min-width: 180px;
@@ -138,22 +135,19 @@
       font-size: 12.3px;
     }
 
-    /* Sticky second column cells (Price) */
-    td:nth-child(2) {
+    /* Sticky 2nd column (Price) */
+    td:nth-child(2),
+    th:nth-child(2) {
       position: sticky;
       left: 180px;
-      z-index: 2;
+      z-index: 8;
       background-color: #fff8dc;
       width: 100px;
       min-width: 100px;
       max-width: 100px;
     }
 
-    thead th {
-      font-size: 14px;
-      background-color: #ffe082;
-    }
-
+    /* Last row (GRAND TOTAL) */
     #inventoryTable tr:last-child td {
       font-size: 16px;
       padding: 10px;
@@ -240,6 +234,7 @@
 
     <div class="table-scroll-wrapper">
       <table id="inventoryTable">
+        <!-- HEADERS -->
         <thead>
           <tr>
             <th>ITEM/PRODUCT</th>
@@ -253,8 +248,10 @@
             <th>TOTAL</th>
           </tr>
         </thead>
+
+        <!-- BODY ROWS -->
         <tbody>
-          <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
+<tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
 <td contenteditable="false">₱18.00</td>
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>

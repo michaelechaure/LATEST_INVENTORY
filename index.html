@@ -27,7 +27,7 @@
       padding: 30px 20px;
       width: 100%;
       max-width: 1200px;
-      overflow: hidden;
+      overflow-x: auto;
     }
 
     .header-with-logos {
@@ -85,10 +85,7 @@
     }
 
     .table-scroll-wrapper {
-      max-height: 70vh;
-      overflow-y: auto;
       overflow-x: auto;
-      position: relative;
     }
 
     table {
@@ -113,21 +110,27 @@
       font-weight: bold;
     }
 
-    thead th {
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background-color: #ffe082;
-      font-size: 14px;
-    }
-
-    /* Sticky first column (Product Name) */
-    td.product,
+    /* Sticky Header for 1st and 2nd columns */
     th:first-child {
       position: sticky;
       left: 0;
       z-index: 3;
       background-color: #ffe082;
+    }
+
+    th:nth-child(2) {
+      position: sticky;
+      left: 180px;
+      z-index: 3;
+      background-color: #ffe082;
+    }
+
+    /* Sticky first column cells (Product) */
+    td.product {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background-color: #ffe0b2;
       text-align: left;
       width: 180px;
       min-width: 180px;
@@ -135,16 +138,20 @@
       font-size: 12.3px;
     }
 
-    /* Sticky second column (Price) */
-    td:nth-child(2),
-    th:nth-child(2) {
+    /* Sticky second column cells (Price) */
+    td:nth-child(2) {
       position: sticky;
       left: 180px;
-      z-index: 3;
+      z-index: 2;
       background-color: #fff8dc;
       width: 100px;
       min-width: 100px;
       max-width: 100px;
+    }
+
+    thead th {
+      font-size: 14px;
+      background-color: #ffe082;
     }
 
     #inventoryTable tr:last-child td {
@@ -247,7 +254,7 @@
           </tr>
         </thead>
         <tbody>
-<tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
+          <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
 <td contenteditable="false">₱18.00</td>
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
@@ -526,6 +533,10 @@
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
 <td contenteditable="false"></td></tr>
+          <tr>
+            <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
+            <td id="grandTotal" contenteditable="false"></td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -563,9 +574,7 @@
         if (!isNaN(value)) total += value;
       });
       const grandCell = document.getElementById("grandTotal");
-      if (grandCell) {
-        grandCell.innerText = total ? "₱" + total.toFixed(2) : "";
-      }
+      grandCell.innerText = total ? "₱" + total.toFixed(2) : "";
     }
 
     function computeAll() {

@@ -6,6 +6,10 @@
   <title>Eggspert Inventory</title>
   <link rel="icon" type="image/png" href="logo.png">
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -27,6 +31,7 @@
       padding: 30px 20px;
       width: 100%;
       max-width: 1200px;
+      overflow-x: auto;
     }
 
     .header-with-logos {
@@ -52,6 +57,7 @@
       display: flex;
       justify-content: flex-end;
       margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .print-btn,
@@ -63,8 +69,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 10px;
-      margin-left: 10px;
+      margin: 5px;
     }
 
     .date-container {
@@ -74,6 +79,7 @@
       margin-bottom: 20px;
       font-size: 16px;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .date-container input[type="date"] {
@@ -170,13 +176,44 @@
       }
     }
 
-    @media (max-width: 600px) {
-      .logo {
-        width: 60px;
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 15px 10px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        overflow-x: auto;
       }
 
       .header-with-logos h1 {
         font-size: 1.5em;
+      }
+
+      .logo {
+        width: 60px;
+      }
+
+      .print-btn,
+      .compute-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+
+      .date-container {
+        font-size: 14px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+
+      th, td {
+        white-space: nowrap;
       }
     }
   </style>
@@ -214,7 +251,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
+       <tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
 <td contenteditable="false">₱18.00</td>
 <td contenteditable="true"></td>
 <td contenteditable="true"></td>
@@ -549,8 +586,11 @@
           e.preventDefault();
           const row = this.parentElement;
           const cellIndex = Array.from(row.children).indexOf(this);
-          const nextRow = row.nextElementSibling;
-          if (nextRow && nextRow.children[cellIndex] && nextRow.children[cellIndex].getAttribute("contenteditable") === "true") {
+          let nextRow = row.nextElementSibling;
+          while (nextRow && (!nextRow.children[cellIndex] || nextRow.children[cellIndex].getAttribute("contenteditable") !== "true")) {
+            nextRow = nextRow.nextElementSibling;
+          }
+          if (nextRow && nextRow.children[cellIndex]) {
             nextRow.children[cellIndex].focus();
           }
         }

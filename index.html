@@ -86,7 +86,7 @@
 
     .table-scroll-wrapper {
       overflow: auto;
-      max-height: 500px;
+      max-height: 70vh;
     }
 
     table {
@@ -103,14 +103,6 @@
       white-space: nowrap;
     }
 
-    thead th {
-      position: sticky;
-      top: 0;
-      background-color: #ffe082;
-      z-index: 4;
-      font-size: 12px;
-    }
-
     td[contenteditable="true"] {
       background-color: #fffceb;
     }
@@ -120,41 +112,42 @@
       font-weight: bold;
     }
 
-    th:first-child {
+    /* Sticky Header + Columns */
+    thead th {
       position: sticky;
-      left: 0;
-      z-index: 6;
+      top: 0;
+      z-index: 4;
+      font-size: 12px;
       background-color: #ffe082;
-      width: 140px;
-      min-width: 140px;
-      max-width: 140px;
+    }
+
+    th:first-child {
+      left: 0;
+      z-index: 5;
+      background-color: #ffe082;
     }
 
     th:nth-child(2) {
-      position: sticky;
-      left: 140px;
-      z-index: 6;
+      left: 130px;
+      z-index: 5;
       background-color: #ffe082;
-      width: 80px;
-      min-width: 80px;
-      max-width: 80px;
     }
 
     td.product {
       position: sticky;
       left: 0;
-      z-index: 3;
+      z-index: 2;
       background-color: #ffe0b2;
       text-align: left;
-      width: 140px;
-      min-width: 140px;
-      max-width: 140px;
-      font-size: 10px;
+      width: 130px;
+      min-width: 130px;
+      max-width: 130px;
+      font-size: 11px;
     }
 
     td:nth-child(2) {
       position: sticky;
-      left: 140px;
+      left: 130px;
       z-index: 2;
       background-color: #fff8dc;
       width: 80px;
@@ -163,8 +156,8 @@
     }
 
     #inventoryTable tr:last-child td {
-      font-size: 16px;
-      padding: 10px;
+      font-size: 14px;
+      padding: 8px;
       font-weight: bold;
       color: #d84315;
       background-color: #fff8e1;

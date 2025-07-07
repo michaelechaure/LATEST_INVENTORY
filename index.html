@@ -21,6 +21,7 @@
       justify-content: center;
       align-items: flex-start;
       padding: 40px 20px;
+      overflow-x: auto;
     }
 
     .container {
@@ -28,9 +29,9 @@
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       border-radius: 16px;
       padding: 30px 20px;
-      width: 100%;
-      max-width: 1200px;
-      overflow-x: auto;
+      width: max-content;
+      max-width: unset;
+      min-width: 1000px;
     }
 
     .header-with-logos {
@@ -89,7 +90,7 @@
     }
 
     .table-scroll-wrapper {
-      overflow: auto;
+      overflow: visible;
       max-height: none;
     }
 

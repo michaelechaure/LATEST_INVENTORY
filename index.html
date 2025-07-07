@@ -90,7 +90,7 @@
 
     .table-scroll-wrapper {
       overflow: auto;
-      /*max-height: 500px;*/
+      max-height: none;
     }
 
     table {
@@ -124,40 +124,61 @@
       font-size: 12px;
     }
 
-    th:first-child {
-      left: 0;
-      z-index: 5;
-    }
+/* Adjust the sticky headers too */
+th:first-child {
+  left: 0;
+  z-index: 5;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
+}
 
-    th:nth-child(2) {
-      left: 150px;
-      z-index: 5;
-    }
+/* 1st column: Product name — wider, no wrap */
+td.product {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  background-color: #ffe0b2;
+  text-align: left;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
+  font-size: 11px;
+  white-space: nowrap;
+}
 
-    td.product {
-      position: sticky;
-      left: 0;
-      z-index: 3;
-      background-color: #ffe0b2;
-      text-align: left;
-      width: 150px;
-      min-width: 150px;
-      max-width: 150px;
-      font-size: 11px;
-    }
+/* Sticky and styled PRICE column for both header and data cells */
+td:nth-child(2),
+th:nth-child(2) {
+  position: sticky;
+  left: 240px;
+  background-color: #fff8dc;
+  width: 90px;
+  min-width: 90px;
+  max-width: 90px;
+  white-space: nowrap;
+}
 
-    td:nth-child(2) {
-      position: sticky;
-      left: 150px;
-      z-index: 2;
-      background-color: #fff8dc;
+th:nth-child(2) {
+  z-index: 5; /* Header stays on top */
+  background-color: #ffe082;
+}
+
+td:nth-child(2) {
+  z-index: 3;
+}
+
+    th:nth-child(5), td:nth-child(5), /* TOTAL ORDERS */
+    th:nth-child(7), td:nth-child(7)  /* SPOILAGE */
+    {
       width: 90px;
       min-width: 90px;
       max-width: 90px;
+      white-space: nowrap;
     }
 
     #inventoryTable tr:last-child td {
-      font-size: 14px;
+      font-size: 20px;
       padding: 8px;
       font-weight: bold;
       color: #d84315;
@@ -628,7 +649,6 @@
       updateGrandTotal();
     }
 
-    // ✅ Save as PDF using jsPDF + html2canvas
     async function saveAsPDF() {
       const { jsPDF } = window.jspdf;
       const inventory = document.getElementById("inventorySection");
@@ -641,8 +661,6 @@
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("landscape", "mm", "a4");
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
       const imgWidth = pageWidth;
       const imgHeight = canvas.height * (imgWidth / canvas.width);
 
@@ -651,7 +669,7 @@
       pdf.save(`Eggspert_Inventory_${date}.pdf`);
     }
 
-    // Enter to move to next row
+    // Enter key moves focus to the next row
     document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {
       cell.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {

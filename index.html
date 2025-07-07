@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eggspert Inventory</title>
   <link rel="icon" type="image/png" href="logo.png">
+  <!-- ✅ jsPDF and html2canvas CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -53,19 +56,20 @@
       display: flex;
       justify-content: flex-end;
       margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .print-btn,
-    .compute-btn {
-      padding: 10px 20px;
+    .compute-btn,
+    .pdf-btn {
+      padding: 10px 16px;
       background-color: #ff9800;
       color: white;
-      font-size: 16px;
+      font-size: 15px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 10px;
-      margin-left: 10px;
     }
 
     .date-container {
@@ -85,8 +89,8 @@
     }
 
     .table-scroll-wrapper {
-      overflow-x: auto;
-      max-height: 70vh;
+      overflow: auto;
+      max-height: 500px;
     }
 
     table {
@@ -97,28 +101,10 @@
 
     th, td {
       border: 1px solid #ccc;
-      padding: 6px 8px;
+      padding: 6px 10px;
       text-align: center;
       font-size: 12px;
       white-space: nowrap;
-    }
-
-    thead th {
-      position: sticky;
-      top: 0;
-      z-index: 4;
-      background-color: #ffe082;
-      font-size: 13px;
-    }
-
-    th:first-child {
-      left: 0;
-      z-index: 5;
-    }
-
-    th:nth-child(2) {
-      left: 120px;
-      z-index: 5;
     }
 
     td[contenteditable="true"] {
@@ -130,31 +116,49 @@
       font-weight: bold;
     }
 
+    thead th {
+      position: sticky;
+      top: 0;
+      background-color: #ffe082;
+      z-index: 4;
+      font-size: 12px;
+    }
+
+    th:first-child {
+      left: 0;
+      z-index: 5;
+    }
+
+    th:nth-child(2) {
+      left: 150px;
+      z-index: 5;
+    }
+
     td.product {
       position: sticky;
       left: 0;
-      z-index: 2;
+      z-index: 3;
       background-color: #ffe0b2;
       text-align: left;
-      width: 120px;
-      min-width: 120px;
-      max-width: 120px;
-      font-size: 11.5px;
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+      font-size: 11px;
     }
 
     td:nth-child(2) {
       position: sticky;
-      left: 120px;
+      left: 150px;
       z-index: 2;
       background-color: #fff8dc;
-      width: 80px;
-      min-width: 80px;
-      max-width: 80px;
+      width: 90px;
+      min-width: 90px;
+      max-width: 90px;
     }
 
     #inventoryTable tr:last-child td {
-      font-size: 16px;
-      padding: 10px;
+      font-size: 14px;
+      padding: 8px;
       font-weight: bold;
       color: #d84315;
       background-color: #fff8e1;
@@ -181,6 +185,7 @@
 
       .print-btn,
       .compute-btn,
+      .pdf-btn,
       .header-with-logos,
       .logo {
         display: none !important;
@@ -219,7 +224,7 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="inventorySection">
     <div class="header-with-logos">
       <img src="logo.png" alt="Logo Left" class="logo left-logo" />
       <h1>Inventory Tracker</h1>
@@ -228,7 +233,8 @@
 
     <div class="print-container">
       <button onclick="computeAll()" class="compute-btn">🧮 Check / Compute</button>
-      <button onclick="handlePrint()" class="print-btn">🖨️ Print Inventory</button>
+      <button onclick="window.print()" class="print-btn">🖨️ Print Inventory</button>
+      <button onclick="saveAsPDF()" class="pdf-btn">📄 Save as PDF</button>
     </div>
 
     <div class="date-container">
@@ -242,7 +248,7 @@
           <tr>
             <th>ITEM/PRODUCT</th>
             <th>PRICE</th>
-            <th>BEGINNING ORDER</th>
+            <th>BEGINNING</th>
             <th>DELIVERY</th>
             <th>TOTAL ORDERS</th>
             <th>ENDING</th>
@@ -252,285 +258,325 @@
           </tr>
         </thead>
         <tbody>
-<tr><td class="product" contenteditable="false" title="PENOY">PENOY</td>
-<td contenteditable="false">₱18.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="PUGO">PUGO</td>
-<td contenteditable="false">₱20.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="KIKIAM">KIKIAM</td>
-<td contenteditable="false">₱15.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="SQUID BALLS">SQUID BALLS</td>
-<td contenteditable="false">₱15.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="FISH BALLS">FISH BALLS</td>
-<td contenteditable="false">₱15.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="CHICKEN BALLS">CHICKEN BALLS</td>
-<td contenteditable="false">₱15.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="PORK SIOMAI">PORK SIOMAI</td>
-<td contenteditable="false">₱20.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="BIG SIOMAI">BIG SIOMAI</td>
-<td contenteditable="false">₱0.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="FRIES">FRIES</td>
-<td contenteditable="false">₱20.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false">CHEESE STICKS</td>
-<td contenteditable="false">₱20.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="BEEF BURGER">BEEF BURGER</td>
-<td contenteditable="false">₱30.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="CHEESY BEEF BURGER">CHEESY BEEF BURGER</td>
-<td contenteditable="false">₱40.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="HOTDOG SANDWICH">HOTDOG SANDWICH</td>
-<td contenteditable="false">₱30.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="CHEESY HOTDOG SANDWICH">CHEESY HOTDOG SANDWICH</td>
-<td contenteditable="false">₱40.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="HOTDOG RICE">HOTDOG RICE</td>
-<td contenteditable="false">₱50.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="SHANGHAI RICE">SHANGHAI RICE</td>
-<td contenteditable="false">₱50.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="RICE">RICE</td>
-<td contenteditable="false">₱15.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="16oz.">16oz.</td>
-<td contenteditable="false">₱18.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="12oz.">12oz.</td>
-<td contenteditable="false">₱10.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="GRAHAM SHAKE (16oz.)">GRAHAM SHAKE (16oz.)</td>
-<td contenteditable="false">₱60.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="GRAHAM SHAKE (12oz.)">GRAHAM SHAKE (12oz.)</td>
-<td contenteditable="false">₱50.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="COKE FLOAT (16oz.)">COKE FLOAT (16oz.)</td>
-<td contenteditable="false">₱0.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="COKE FLOAT (12oz.)">COKE FLOAT (12oz.)</td>
-<td contenteditable="false">₱0.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="COKE MISMO">COKE MISMO</td>
-<td contenteditable="false">₱21.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="LEMON SODA">LEMON SODA</td>
-<td contenteditable="false">₱15.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="ROYAL MISMO">ROYAL MISMO</td>
-<td contenteditable="false">₱21.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="BOTTLED WATER">BOTTLED WATER</td>
-<td contenteditable="false">₱15.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
-
-<tr><td class="product" contenteditable="false" title="BOTTLED WATER 1L">BOTTLED WATER 1L</td>
-<td contenteditable="false">₱25.00</td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="true"></td>
-<td contenteditable="false"></td></tr>
+<tr>
+  <td class="product" contenteditable="false" title="2PCS. HOTDOG WITH RICE">2PCS. HOTDOG WITH RICE</td>
+  <td contenteditable="false">₱60.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="4PCS. JOLLIBEE LUMPIA WITH RICE">4PCS. JOLLIBEE LUMPIA WITH RICE</td>
+  <td contenteditable="false">₱60.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="5PCS. DAVID SIOMAI WITH RICE">5PCS. DAVID SIOMAI WITH RICE</td>
+  <td contenteditable="false">₱55.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="BEEF BURGER">BEEF BURGER</td>
+  <td contenteditable="false">₱30.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="BIG SIOMAI (1PC)">BIG SIOMAI (1PC)</td>
+  <td contenteditable="false">₱10.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="BOTTLED WATER (500ML)">BOTTLED WATER (500ML)</td>
+  <td contenteditable="false">₱15.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="BOTTLED WATER (1LITER)">BOTTLED WATER (1LITER)</td>
+  <td contenteditable="false">₱25.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="CHEESE STICK (5PCS)">CHEESE STICK (5PCS)</td>
+  <td contenteditable="false">₱10.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="CHEESY BURGER">CHEESY BURGER</td>
+  <td contenteditable="false">₱35.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="CHICKENBALL (5PCS)">CHICKENBALL (5PCS)</td>
+  <td contenteditable="false">₱15.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="COKE FLOAT (12OZ)">COKE FLOAT (12OZ)</td>
+  <td contenteditable="false">₱50.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="COKE FLOAT (16OZ)">COKE FLOAT (16OZ)</td>
+  <td contenteditable="false">₱60.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="COKE MISMO">COKE MISMO</td>
+  <td contenteditable="false">₱21.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="FISHBALL (12PCS)">FISHBALL (12PCS)</td>
+  <td contenteditable="false">₱15.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="FRIES">FRIES</td>
+  <td contenteditable="false">₱20.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="FOOTLONG">FOOTLONG</td>
+  <td contenteditable="false">₱45.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="FOOTLONG WITH CHEESE">FOOTLONG WITH CHEESE</td>
+  <td contenteditable="false">₱50.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="HOTDOG (1PC)">HOTDOG (1PC)</td>
+  <td contenteditable="false">₱20.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="HOTDOG SANDWICH">HOTDOG SANDWICH</td>
+  <td contenteditable="false">₱30.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="HOTDOG SANDWICH WITH CHEESE">HOTDOG SANDWICH WITH CHEESE</td>
+  <td contenteditable="false">₱35.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="KIKIAM (7PCS)">KIKIAM (7PCS)</td>
+  <td contenteditable="false">₱15.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="LEMON SODA">LEMON SODA</td>
+  <td contenteditable="false">₱15.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="MANGO GRAHAM SHAKE (12OZ)">MANGO GRAHAM SHAKE (12OZ)</td>
+  <td contenteditable="false">₱50.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="MANGO GRAHAM SHAKE (16OZ)">MANGO GRAHAM SHAKE (16OZ)</td>
+  <td contenteditable="false">₱60.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="PENOY (1PC)">PENOY (1PC)</td>
+  <td contenteditable="false">₱18.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="PUGO (4PCS)">PUGO (4PCS)</td>
+  <td contenteditable="false">₱20.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="SMALL SIOMAI (4PCS)">SMALL SIOMAI (4PCS)</td>
+  <td contenteditable="false">₱20.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="SQUIDBALL (5PCS)">SQUIDBALL (5PCS)</td>
+  <td contenteditable="false">₱15.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
+<tr>
+  <td class="product" contenteditable="false" title="ROYAL MISMO">ROYAL MISMO</td>
+  <td contenteditable="false">₱21.00</td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="true"></td>
+  <td contenteditable="false"></td>
+</tr>
           <tr>
             <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
             <td id="grandTotal" contenteditable="false"></td>
@@ -582,12 +628,30 @@
       updateGrandTotal();
     }
 
-    function handlePrint() {
-      setTimeout(() => {
-        window.print();
-      }, 100);
+    // ✅ Save as PDF using jsPDF + html2canvas
+    async function saveAsPDF() {
+      const { jsPDF } = window.jspdf;
+      const inventory = document.getElementById("inventorySection");
+
+      const canvas = await html2canvas(inventory, {
+        scale: 2,
+        useCORS: true,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("landscape", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pageWidth;
+      const imgHeight = canvas.height * (imgWidth / canvas.width);
+
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      const date = new Date().toISOString().split("T")[0];
+      pdf.save(`Eggspert_Inventory_${date}.pdf`);
     }
 
+    // Enter to move to next row
     document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {
       cell.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {

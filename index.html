@@ -5,225 +5,258 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eggspert Inventory</title>
   <link rel="icon" type="image/png" href="logo.png">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fff3e0;
+    background-image: url('background.avif');
+    background-repeat: repeat;
+    background-size: 200px auto;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .container {
+    background-color: #fffef9;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 30px 20px;
+    width: max-content;
+    max-width: unset;
+  }
+
+  .header-with-logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+  }
+
+  .header-with-logos h1 {
+    font-size: 2.2em;
+    margin: 0;
+    color: #bf360c;
+  }
+
+  .logo {
+    width: 100px;
+    height: auto;
+  }
+
+  .print-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .print-btn,
+  .compute-btn {
+    padding: 10px 16px;
+    background-color: #ff9800;
+    color: white;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .date-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 16px;
+    gap: 8px;
+  }
+
+  .date-container input[type="date"] {
+    font-size: 16px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    max-width: 100vw;
+  }
+
+  table {
+    border-collapse: collapse;
+    table-layout: auto;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    text-align: center;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  td[contenteditable="true"] {
+    background-color: #fffceb;
+  }
+
+  td[contenteditable="false"] {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+
+  td.product {
+    background-color: #ffe0b2;
+    color: black;
+    font-weight: bold;
+    text-align: left;
+    font-size: 11px;
+  }
+
+  td:nth-child(2) {
+    background-color: #fff8dc;
+    color: black;
+    font-weight: bold;
+  }
+
+  th:nth-child(2) {
+    background-color: #ffe082;
+  }
+
+  thead th {
+    background-color: #ffe082;
+    font-size: 12px;
+  }
+
+  th:nth-child(5), td:nth-child(5),
+  th:nth-child(7), td:nth-child(7) {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+  }
+
+  #inventoryTable tr:last-child td {
+    font-size: 20px;
+    padding: 8px;
+    font-weight: bold;
+    color: #d84315;
+    background-color: #fff8e1;
+  }
+
+  /* Print Styles */
+  @media print {
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #fff3e0;
-      background-image: url('background.avif');
-      background-repeat: repeat;
-      background-size: 200px auto;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 40px 20px;
+      background: white !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      print-color-adjust: exact !important;
+      -webkit-print-color-adjust: exact !important;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0.5in;
     }
 
     .container {
-      background-color: #fffef9;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-      border-radius: 16px;
-      padding: 30px 20px;
-      width: max-content;
-    }
-
-    .header-with-logos {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 10px;
-    }
-
-    .header-with-logos h1 {
-      font-size: 2.2em;
-      margin: 0;
-      color: #bf360c;
-    }
-
-    .logo {
-      width: 100px;
-      height: auto;
-    }
-
-    .print-container {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-      gap: 10px;
+      width: 100% !important;
+      max-height: none !important;
+      overflow: visible !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      transform: scale(0.95);
+      transform-origin: top left;
     }
 
     .print-btn,
     .compute-btn,
-    .pdf-btn {
-      padding: 10px 16px;
-      background-color: #ff9800;
-      color: white;
-      font-size: 15px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    .header-with-logos,
+    .logo {
+      display: none !important;
     }
 
     .date-container {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-bottom: 20px;
-      font-size: 16px;
-      gap: 8px;
-    }
-
-    .date-container input[type="date"] {
-      font-size: 16px;
-      padding: 4px 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      justify-content: flex-start;
+      font-size: 11px !important;
+      margin-bottom: 5px !important;
     }
 
     .table-scroll-wrapper {
-      overflow: auto;
-      max-height: unset;
+      overflow: visible !important;
+      max-height: none !important;
     }
 
     table {
-      border-collapse: collapse;
-      table-layout: auto;
+      width: 100% !important;
+      border-collapse: collapse !important;
     }
 
     th, td {
-      border: 1px solid #ccc;
-      padding: 6px 10px;
-      text-align: center;
-      font-size: 12px;
-      white-space: nowrap;
+      border: 1px solid black !important;
+      font-size: 10px !important;
+      padding: 4px 6px !important;
+    }
+  }
+
+  /* Responsive for Tablets and Smaller */
+  @media (max-width: 1280px) {
+    .container {
+      max-width: 100%;
+      padding: 10px;
     }
 
-    td[contenteditable="true"] {
-      background-color: #fffceb;
-    }
-
-    td[contenteditable="false"] {
-      background-color: #f5f5f5;
-      font-weight: bold;
-    }
-
-    td.product {
-      background-color: #ffe0b2;
-      color: black;
-      font-weight: bold;
-      text-align: left;
+    table {
       font-size: 11px;
     }
 
-    td:nth-child(2) {
-      background-color: #fff8dc;
-      color: black;
-      font-weight: bold;
+    th, td {
+      padding: 4px 6px;
     }
 
-    th:nth-child(2) {
-      background-color: #ffe082;
+    .header-with-logos h1 {
+      font-size: 1.4em;
     }
 
-    thead th {
-      background-color: #ffe082;
-      font-size: 12px;
+    .logo {
+      width: 70px;
     }
 
-    th:nth-child(5), td:nth-child(5),
-    th:nth-child(7), td:nth-child(7) {
-      width: 90px;
-      min-width: 90px;
-      max-width: 90px;
+    .print-btn,
+    .compute-btn {
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    table {
+      font-size: 10px;
     }
 
-    #inventoryTable tr:last-child td {
-      font-size: 20px;
-      padding: 8px;
-      font-weight: bold;
-      color: #d84315;
-      background-color: #fff8e1;
+    th, td {
+      padding: 3px 5px;
     }
 
-@media print {
-  body {
-    background: white !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    print-color-adjust: exact !important;
-    -webkit-print-color-adjust: exact !important;
-  }
-
-  @page {
-    size: A4 landscape;
-    margin: 0.5in;
-  }
-
-  .container {
-    width: 100% !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-
-    /* Adjust this scale until it fits 1 page */
-    transform: scale(0.95);
-    transform-origin: top left;
-  }
-
-  .print-btn,
-  .compute-btn,
-  .pdf-btn,
-  .header-with-logos,
-  .logo {
-    display: none !important;
-  }
-
-  .date-container {
-    justify-content: flex-start;
-    font-size: 11px !important;
-    margin-bottom: 5px !important;
-  }
-
-  .table-scroll-wrapper {
-    overflow: visible !important;
-    max-height: none !important;
-  }
-
-  table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-  }
-
-  th, td {
-    border: 1px solid black !important;
-    font-size: 10px !important;
-    padding: 4px 6px !important;
-  }
-}
-
-
-
-
-    @media (max-width: 600px) {
-      .logo {
-        width: 60px;
-      }
-
-      .header-with-logos h1 {
-        font-size: 1.5em;
-      }
-
-      .container {
-        padding: 10px;
-      }
+    .logo {
+      width: 50px;
     }
-  </style>
+
+    .header-with-logos h1 {
+      font-size: 1.1em;
+    }
+
+    .print-btn,
+    .compute-btn {
+      font-size: 13px;
+      padding: 6px 10px;
+    }
+  }
+</style>
 </head>
 <body>
   <div class="container" id="inventorySection">
@@ -236,7 +269,6 @@
     <div class="print-container">
       <button onclick="computeAll()" class="compute-btn">🧮 Check / Compute</button>
       <button onclick="window.print()" class="print-btn">🖨️ Print Inventory</button>
-      <button onclick="saveAsPDF()" class="pdf-btn">📄 Save as PDF</button>
     </div>
 
     <div class="date-container">
@@ -579,6 +611,7 @@
   <td contenteditable="true"></td>
   <td contenteditable="false"></td>
 </tr>
+
           <tr>
             <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
             <td id="grandTotal" contenteditable="false"></td>
@@ -628,39 +661,6 @@
         recalculateRow(row);
       });
       updateGrandTotal();
-    }
-
-    async function saveAsPDF() {
-      const { jsPDF } = window.jspdf;
-      const inventory = document.getElementById("inventorySection");
-
-      const canvas = await html2canvas(inventory, {
-        scale: 2,
-        useCORS: true,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("landscape", "mm", "a4");
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      const pxToMm = (px) => (px * 25.4) / 96;
-      const canvasWidthMm = pxToMm(canvas.width);
-      const canvasHeightMm = pxToMm(canvas.height);
-
-      const scale = Math.min(pageWidth / canvasWidthMm, pageHeight / canvasHeightMm);
-
-      const finalWidth = canvasWidthMm * scale;
-      const finalHeight = canvasHeightMm * scale;
-
-      const x = (pageWidth - finalWidth) / 2;
-      const y = (pageHeight - finalHeight) / 2;
-
-      pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
-
-      const date = new Date().toISOString().split("T")[0];
-      pdf.save(`Eggspert_Inventory_${date}.pdf`);
     }
 
     document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {

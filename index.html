@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eggspert Inventory</title>
   <link rel="icon" type="image/png" href="logo.png">
-  <!-- ✅ jsPDF and html2canvas CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -26,12 +25,11 @@
 
     .container {
       background-color: #fffef9;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-      border-radius: 16px;
       padding: 30px 20px;
+      border-radius: 16px;
       width: max-content;
-      max-width: unset;
       min-width: 1000px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     }
 
     .header-with-logos {
@@ -61,9 +59,7 @@
       gap: 10px;
     }
 
-    .print-btn,
-    .compute-btn,
-    .pdf-btn {
+    .print-btn, .compute-btn, .pdf-btn {
       padding: 10px 16px;
       background-color: #ff9800;
       color: white;
@@ -87,11 +83,6 @@
       padding: 4px 8px;
       border: 1px solid #ccc;
       border-radius: 6px;
-    }
-
-    .table-scroll-wrapper {
-      overflow: visible;
-      max-height: none;
     }
 
     table {
@@ -125,53 +116,52 @@
       font-size: 12px;
     }
 
-/* Adjust the sticky headers too */
-th:first-child {
-  left: 0;
-  z-index: 5;
-  width: 240px;
-  min-width: 240px;
-  max-width: 240px;
-}
+    /* 1st column: Product name */
+    th:first-child {
+      left: 0;
+      z-index: 5;
+      width: 240px;
+      min-width: 240px;
+      max-width: 240px;
+    }
 
-/* 1st column: Product name — wider, no wrap */
-td.product {
-  position: sticky;
-  left: 0;
-  z-index: 4;
-  background-color: #ffe0b2;
-  text-align: left;
-  width: 240px;
-  min-width: 240px;
-  max-width: 240px;
-  font-size: 11px;
-  white-space: nowrap;
-}
+    td.product {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      background-color: #ffe0b2;
+      text-align: left;
+      width: 240px;
+      min-width: 240px;
+      max-width: 240px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
 
-/* Sticky and styled PRICE column for both header and data cells */
-td:nth-child(2),
-th:nth-child(2) {
-  position: sticky;
-  left: 240px;
-  background-color: #fff8dc;
-  width: 90px;
-  min-width: 90px;
-  max-width: 90px;
-  white-space: nowrap;
-}
+    /* PRICE column */
+    th:nth-child(2) {
+      left: 240px;
+      z-index: 5;
+      background-color: #ffe082;
+      width: 90px;
+      min-width: 90px;
+      max-width: 90px;
+    }
 
-th:nth-child(2) {
-  z-index: 5; /* Header stays on top */
-  background-color: #ffe082;
-}
+    td:nth-child(2) {
+      position: sticky;
+      left: 240px;
+      z-index: 3;
+      background-color: #fff8dc;
+      width: 90px;
+      min-width: 90px;
+      max-width: 90px;
+      white-space: nowrap;
+    }
 
-td:nth-child(2) {
-  z-index: 3;
-}
-
-    th:nth-child(5), td:nth-child(5), /* TOTAL ORDERS */
-    th:nth-child(7), td:nth-child(7)  /* SPOILAGE */
-    {
+    /* Narrow TOTAL ORDERS and SPOILAGE columns */
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(7), td:nth-child(7) {
       width: 90px;
       min-width: 90px;
       max-width: 90px;
@@ -200,6 +190,7 @@ td:nth-child(2) {
       }
 
       .container {
+        background: white !important;
         box-shadow: none !important;
         border-radius: 0 !important;
         padding: 0 !important;
@@ -228,6 +219,12 @@ td:nth-child(2) {
       th, td {
         padding: 3px 5px !important;
       }
+
+      table {
+        width: 100% !important;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
     }
 
     @media (max-width: 600px) {
@@ -248,9 +245,9 @@ td:nth-child(2) {
 <body>
   <div class="container" id="inventorySection">
     <div class="header-with-logos">
-      <img src="logo.png" alt="Logo Left" class="logo left-logo" />
+      <img src="logo.png" class="logo" alt="Left Logo">
       <h1>Inventory Tracker</h1>
-      <img src="logo.png" alt="Logo Right" class="logo right-logo" />
+      <img src="logo.png" class="logo" alt="Right Logo">
     </div>
 
     <div class="print-container">
@@ -264,22 +261,21 @@ td:nth-child(2) {
       <input type="date" id="inventoryDate" name="inventoryDate">
     </div>
 
-    <div class="table-scroll-wrapper">
-      <table id="inventoryTable">
-        <thead>
-          <tr>
-            <th>ITEM/PRODUCT</th>
-            <th>PRICE</th>
-            <th>BEGINNING</th>
-            <th>DELIVERY</th>
-            <th>TOTAL ORDERS</th>
-            <th>ENDING</th>
-            <th>SPOILAGE</th>
-            <th>SOLD</th>
-            <th>TOTAL</th>
-          </tr>
-        </thead>
-        <tbody>
+    <table id="inventoryTable">
+      <thead>
+        <tr>
+          <th>ITEM/PRODUCT</th>
+          <th>PRICE</th>
+          <th>BEGINNING</th>
+          <th>DELIVERY</th>
+          <th>TOTAL ORDERS</th>
+          <th>ENDING</th>
+          <th>SPOILAGE</th>
+          <th>SOLD</th>
+          <th>TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
 <tr>
   <td class="product" contenteditable="false" title="2PCS. HOTDOG WITH RICE">2PCS. HOTDOG WITH RICE</td>
   <td contenteditable="false">₱60.00</td>
@@ -599,13 +595,13 @@ td:nth-child(2) {
   <td contenteditable="true"></td>
   <td contenteditable="false"></td>
 </tr>
-          <tr>
-            <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
-            <td id="grandTotal" contenteditable="false"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
+        <tr>
+          <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
+          <td id="grandTotal" contenteditable="false"></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <script>
@@ -661,11 +657,22 @@ td:nth-child(2) {
 
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("landscape", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pageWidth;
-      const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const pxToMm = px => (px * 25.4) / 96;
+      const canvasWidthMm = pxToMm(canvas.width);
+      const canvasHeightMm = pxToMm(canvas.height);
+
+      const scale = Math.min(pageWidth / canvasWidthMm, pageHeight / canvasHeightMm);
+      const finalWidth = canvasWidthMm * scale;
+      const finalHeight = canvasHeightMm * scale;
+
+      const x = (pageWidth - finalWidth) / 2;
+      const y = (pageHeight - finalHeight) / 2;
+
+      pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
       const date = new Date().toISOString().split("T")[0];
       pdf.save(`Eggspert_Inventory_${date}.pdf`);
     }
@@ -678,7 +685,7 @@ td:nth-child(2) {
           const row = this.parentElement;
           const cellIndex = Array.from(row.children).indexOf(this);
           const nextRow = row.nextElementSibling;
-          if (nextRow && nextRow.children[cellIndex] && nextRow.children[cellIndex].getAttribute("contenteditable") === "true") {
+          if (nextRow && nextRow.children[cellIndex]?.getAttribute("contenteditable") === "true") {
             nextRow.children[cellIndex].focus();
           }
         }

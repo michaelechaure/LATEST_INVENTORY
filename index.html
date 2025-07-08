@@ -147,6 +147,19 @@
     background-color: #fff8e1;
   }
 
+  #inventoryTable tr.summary-row td {
+    background-color: #fff3e0;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: right;
+  }
+
+  #inventoryTable tr.summary-row td:last-child {
+    text-align: center;
+    font-weight: bold;
+    color: #4e342e;
+  }
+
   /* Print Styles */
   @media print {
     body {
@@ -158,7 +171,7 @@
     }
 
     @page {
-      size: A4 landscape;
+      size: A4 portrait;
       margin: 0.5in;
     }
 
@@ -612,6 +625,14 @@
   <td contenteditable="false"></td>
 </tr>
 
+          <tr class="summary-row">
+            <td colspan="8">CASH ONHAND:</td>
+            <td id="cashOnHand" contenteditable="true"></td>
+          </tr>
+          <tr class="summary-row">
+            <td colspan="8">ONLINE PAYMENT:</td>
+            <td id="onlinePayment" contenteditable="true"></td>
+          </tr>
           <tr>
             <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
             <td id="grandTotal" contenteditable="false"></td>
@@ -623,12 +644,13 @@
 
   <script>
     function parsePeso(pesoStr) {
-      return parseFloat(pesoStr.replace(/[₱,]/g, "")) || 0;
+      return parseFloat(String(pesoStr).replace(/[₱,]/g, "")) || 0;
     }
 
     function recalculateRow(row) {
       const cells = row.querySelectorAll("td");
       if (cells.length < 9) return;
+
       const price = parsePeso(cells[1].innerText);
       const beginning = parseFloat(cells[2].innerText) || 0;
       const delivery = parseFloat(cells[3].innerText) || 0;
@@ -646,19 +668,30 @@
 
     function updateGrandTotal() {
       let total = 0;
-      document.querySelectorAll("#inventoryTable tbody tr").forEach(row => {
+      const rows = document.querySelectorAll("#inventoryTable tbody tr");
+
+      rows.forEach(row => {
         const cells = row.querySelectorAll("td");
         if (cells.length !== 9) return;
         const value = parsePeso(cells[8].innerText);
         if (!isNaN(value)) total += value;
       });
+
+      const cash = parsePeso(document.getElementById("cashOnHand").innerText);
+      const online = parsePeso(document.getElementById("onlinePayment").innerText);
+
+      total += cash + online;
+
       const grandCell = document.getElementById("grandTotal");
       grandCell.innerText = total ? "₱" + total.toFixed(2) : "";
     }
 
     function computeAll() {
-      document.querySelectorAll("#inventoryTable tbody tr").forEach(row => {
-        recalculateRow(row);
+      const rows = document.querySelectorAll("#inventoryTable tbody tr");
+      rows.forEach(row => {
+        if (!row.classList.contains("summary-row")) {
+          recalculateRow(row);
+        }
       });
       updateGrandTotal();
     }
@@ -674,6 +707,10 @@
             nextRow.children[cellIndex].focus();
           }
         }
+      });
+
+      cell.addEventListener("input", function () {
+        computeAll();
       });
     });
   </script>

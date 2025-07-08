@@ -18,18 +18,15 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
       padding: 40px 20px;
-      overflow-x: auto;
     }
 
     .container {
       background-color: #fffef9;
-      padding: 30px 20px;
-      border-radius: 16px;
-      width: max-content;
-      min-width: 1000px;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      padding: 30px 20px;
+      width: max-content;
     }
 
     .header-with-logos {
@@ -59,7 +56,9 @@
       gap: 10px;
     }
 
-    .print-btn, .compute-btn, .pdf-btn {
+    .print-btn,
+    .compute-btn,
+    .pdf-btn {
       padding: 10px 16px;
       background-color: #ff9800;
       color: white;
@@ -85,8 +84,12 @@
       border-radius: 6px;
     }
 
+    .table-scroll-wrapper {
+      overflow: auto;
+      max-height: unset;
+    }
+
     table {
-      width: 100%;
       border-collapse: collapse;
       table-layout: auto;
     }
@@ -108,64 +111,34 @@
       font-weight: bold;
     }
 
-    thead th {
-      position: sticky;
-      top: 0;
-      background-color: #ffe082;
-      z-index: 4;
-      font-size: 12px;
-    }
-
-    /* 1st column: Product name */
-    th:first-child {
-      left: 0;
-      z-index: 5;
-      width: 240px;
-      min-width: 240px;
-      max-width: 240px;
-    }
-
     td.product {
-      position: sticky;
-      left: 0;
-      z-index: 4;
       background-color: #ffe0b2;
+      color: black;
+      font-weight: bold;
       text-align: left;
-      width: 240px;
-      min-width: 240px;
-      max-width: 240px;
       font-size: 11px;
-      white-space: nowrap;
-    }
-
-    /* PRICE column */
-    th:nth-child(2) {
-      left: 240px;
-      z-index: 5;
-      background-color: #ffe082;
-      width: 90px;
-      min-width: 90px;
-      max-width: 90px;
     }
 
     td:nth-child(2) {
-      position: sticky;
-      left: 240px;
-      z-index: 3;
       background-color: #fff8dc;
-      width: 90px;
-      min-width: 90px;
-      max-width: 90px;
-      white-space: nowrap;
+      color: black;
+      font-weight: bold;
     }
 
-    /* Narrow TOTAL ORDERS and SPOILAGE columns */
+    th:nth-child(2) {
+      background-color: #ffe082;
+    }
+
+    thead th {
+      background-color: #ffe082;
+      font-size: 12px;
+    }
+
     th:nth-child(5), td:nth-child(5),
     th:nth-child(7), td:nth-child(7) {
       width: 90px;
       min-width: 90px;
       max-width: 90px;
-      white-space: nowrap;
     }
 
     #inventoryTable tr:last-child td {
@@ -176,56 +149,66 @@
       background-color: #fff8e1;
     }
 
-    @media print {
-      body {
-        zoom: 100%;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        background: white !important;
-      }
+@media print {
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
 
-      @page {
-        size: A4 landscape;
-        margin: 8mm;
-      }
+  @page {
+    size: A4 landscape;
+    margin: 0.5in;
+  }
 
-      .container {
-        background: white !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-      }
+  .container {
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
 
-      .print-btn,
-      .compute-btn,
-      .pdf-btn,
-      .header-with-logos,
-      .logo {
-        display: none !important;
-      }
+    /* Adjust this scale until it fits 1 page */
+    transform: scale(0.95);
+    transform-origin: top left;
+  }
 
-      .date-container {
-        justify-content: flex-start;
-        font-size: 12px !important;
-        margin-bottom: 5px !important;
-      }
+  .print-btn,
+  .compute-btn,
+  .pdf-btn,
+  .header-with-logos,
+  .logo {
+    display: none !important;
+  }
 
-      table, th, td {
-        border: 1px solid black !important;
-        border-collapse: collapse !important;
-        font-size: 9.5px !important;
-      }
+  .date-container {
+    justify-content: flex-start;
+    font-size: 11px !important;
+    margin-bottom: 5px !important;
+  }
 
-      th, td {
-        padding: 3px 5px !important;
-      }
+  .table-scroll-wrapper {
+    overflow: visible !important;
+    max-height: none !important;
+  }
 
-      table {
-        width: 100% !important;
-        margin: 0 auto;
-        box-sizing: border-box;
-      }
-    }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1px solid black !important;
+    font-size: 10px !important;
+    padding: 4px 6px !important;
+  }
+}
+
+
+
 
     @media (max-width: 600px) {
       .logo {
@@ -245,9 +228,9 @@
 <body>
   <div class="container" id="inventorySection">
     <div class="header-with-logos">
-      <img src="logo.png" class="logo" alt="Left Logo">
+      <img src="logo.png" alt="Logo Left" class="logo left-logo" />
       <h1>Inventory Tracker</h1>
-      <img src="logo.png" class="logo" alt="Right Logo">
+      <img src="logo.png" alt="Logo Right" class="logo right-logo" />
     </div>
 
     <div class="print-container">
@@ -261,21 +244,22 @@
       <input type="date" id="inventoryDate" name="inventoryDate">
     </div>
 
-    <table id="inventoryTable">
-      <thead>
-        <tr>
-          <th>ITEM/PRODUCT</th>
-          <th>PRICE</th>
-          <th>BEGINNING</th>
-          <th>DELIVERY</th>
-          <th>TOTAL ORDERS</th>
-          <th>ENDING</th>
-          <th>SPOILAGE</th>
-          <th>SOLD</th>
-          <th>TOTAL</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="table-scroll-wrapper">
+      <table id="inventoryTable">
+        <thead>
+          <tr>
+            <th>ITEM/PRODUCT</th>
+            <th>PRICE</th>
+            <th>BEGINNING</th>
+            <th>DELIVERY</th>
+            <th>TOTAL ORDERS</th>
+            <th>ENDING</th>
+            <th>SPOILAGE</th>
+            <th>SOLD</th>
+            <th>TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
 <tr>
   <td class="product" contenteditable="false" title="2PCS. HOTDOG WITH RICE">2PCS. HOTDOG WITH RICE</td>
   <td contenteditable="false">₱60.00</td>
@@ -354,8 +338,8 @@
   <td contenteditable="false"></td>
 </tr>
 <tr>
-  <td class="product" contenteditable="false" title="CHEESE STICK (5PCS)">CHEESE STICK (5PCS)</td>
-  <td contenteditable="false">₱10.00</td>
+  <td class="product" contenteditable="false" title="CHEESE STICK (5PCS)">CHEESE STICK (10PCS)</td>
+  <td contenteditable="false">₱20.00</td>
   <td contenteditable="true"></td>
   <td contenteditable="true"></td>
   <td contenteditable="false"></td>
@@ -595,13 +579,13 @@
   <td contenteditable="true"></td>
   <td contenteditable="false"></td>
 </tr>
-
-        <tr>
-          <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
-          <td id="grandTotal" contenteditable="false"></td>
-        </tr>
-      </tbody>
-    </table>
+          <tr>
+            <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
+            <td id="grandTotal" contenteditable="false"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -661,11 +645,12 @@
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
 
-      const pxToMm = px => (px * 25.4) / 96;
+      const pxToMm = (px) => (px * 25.4) / 96;
       const canvasWidthMm = pxToMm(canvas.width);
       const canvasHeightMm = pxToMm(canvas.height);
 
       const scale = Math.min(pageWidth / canvasWidthMm, pageHeight / canvasHeightMm);
+
       const finalWidth = canvasWidthMm * scale;
       const finalHeight = canvasHeightMm * scale;
 
@@ -673,11 +658,11 @@
       const y = (pageHeight - finalHeight) / 2;
 
       pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
+
       const date = new Date().toISOString().split("T")[0];
       pdf.save(`Eggspert_Inventory_${date}.pdf`);
     }
 
-    // Enter key moves focus to the next row
     document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {
       cell.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
@@ -685,7 +670,7 @@
           const row = this.parentElement;
           const cellIndex = Array.from(row.children).indexOf(this);
           const nextRow = row.nextElementSibling;
-          if (nextRow && nextRow.children[cellIndex]?.getAttribute("contenteditable") === "true") {
+          if (nextRow && nextRow.children[cellIndex] && nextRow.children[cellIndex].getAttribute("contenteditable") === "true") {
             nextRow.children[cellIndex].focus();
           }
         }

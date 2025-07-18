@@ -718,13 +718,16 @@
       if (!isNaN(value)) total += value;
     });
 
-    const cash = parsePeso(document.getElementById("cashOnHand").innerText);
-    const online = parsePeso(document.getElementById("onlinePayment").innerText);
+    const cashCell = document.getElementById("cashOnHand");
+    const onlineCell = document.getElementById("onlinePayment");
 
-    total += cash + online;
+    const cash = total;
+    const online = parsePeso(onlineCell.innerText);
 
+    cashCell.innerText = cash ? "₱" + cash.toFixed(2) : "";
+    const grandTotal = cash + online;
     const grandCell = document.getElementById("grandTotal");
-    grandCell.innerText = total ? "₱" + total.toFixed(2) : "";
+    grandCell.innerText = grandTotal ? "₱" + grandTotal.toFixed(2) : "";
   }
 
   function computeAll() {
@@ -737,7 +740,7 @@
     updateGrandTotal();
   }
 
-  // Enter key navigation to next editable cell downward
+  // Enter key navigation to next editable cell below
   document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {
     cell.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {

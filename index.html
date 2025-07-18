@@ -302,7 +302,7 @@
             <th>TOTAL</th>
           </tr>
         </thead>
-        <tbody>
+      <tbody>
 <tr>
   <td class="product" contenteditable="false" title="2PCS. HOTDOG WITH RICE">2PCS. HOTDOG WITH RICE</td>
   <td contenteditable="false">₱60.00</td>
@@ -666,94 +666,125 @@
   <td contenteditable="false"></td>
   <td contenteditable="false"></td>
 </tr>
+        <!-- Summary rows -->
         <tr class="summary-row">
-          <td colspan="8" style="text-align:right;">CASH ONHAND:</td>
+          <td colspan="8">CASH ONHAND</td>
           <td contenteditable="false" id="cashOnHandCell"></td>
         </tr>
         <tr class="summary-row">
-          <td colspan="8" style="text-align:right;">ONLINE PAYMENT:</td>
+          <td colspan="8">ONLINE PAYMENT</td>
           <td contenteditable="true" id="onlinePaymentCell"></td>
         </tr>
-        <tr>
-          <td colspan="8" style="text-align:right;">GRAND TOTAL:</td>
+        <tr class="summary-row">
+          <td colspan="8">GRAND TOTAL</td>
           <td contenteditable="false" id="grandTotalCell"></td>
         </tr>
-</tbody>
-      </table>
-    </div>
+      </tbody>
+    </table>
   </div>
 
 <script>
-  function parsePeso(pesoStr) {
-    return parseFloat(String(pesoStr).replace(/[₱,]/g, "")) || 0;
+  function parsePeso(value) {
+    return parseFloat(value.replace(/[₱,]/g, '')) || 0;
   }
 
-  function recalculateRow(row) {
-    const cells = row.querySelectorAll("td");
-    if (cells.length < 9) return;
+  function highlightCell(cell) {
+    cell.style.transition = "background-color 0.5s";
+    cell.style.backgroundColor = "#fff9c4"; // light yellow
+    setTimeout(() => {
+      cell.style.backgroundColor = "";
+    }, 800);
+  }
 
-    const price = parsePeso(cells[1].innerText);
-    const beginning = parseFloat(cells[2].innerText) || 0;
-    const delivery = parseFloat(cells[3].innerText) || 0;
-    const ending = parseFloat(cells[5].innerText) || 0;
-    const spoilage = parseFloat(cells[6].innerText) || 0;
+  function computeTotals() {
+    const rows = document.querySelectorAll("#inventoryTable tbody tr");
+    rows.forEach(row => {
+      if (!row.classList.contains("summary-row")) {
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 9) {
+          const price = parsePeso(cells[1].innerText);
+          const beginning = parseInt(cells[2].innerText) || 0;
+          const delivery = parseInt(cells[3].innerText) || 0;
 
-    const totalOrders = beginning + delivery;
-    const sold = totalOrders - ending - spoilage;
-    const total = sold * price;
+          const totalOrders = beginning + delivery;
+          if (cells[4].innerText != totalOrders) {
+            cells[4].innerText = totalOrders || "";
+            highlightCell(cells[4]);
+          }
 
-    cells[4].innerText = totalOrders || "";
-    cells[7].innerText = sold || "";
-    cells[8].innerText = total ? "₱" + total.toFixed(2) : "";
+          const ending = parseInt(cells[5].innerText) || 0;
+          const spoilage = parseInt(cells[6].innerText) || 0;
+
+          const sold = totalOrders - ending - spoilage;
+          if (cells[7].innerText != sold) {
+            cells[7].innerText = sold || "";
+            highlightCell(cells[7]);
+          }
+
+          const total = sold * price;
+          const formattedTotal = total ? "₱" + total.toFixed(2) : "";
+          if (cells[8].innerText != formattedTotal) {
+            cells[8].innerText = formattedTotal;
+            highlightCell(cells[8]);
+          }
+        }
+      }
+    });
   }
 
   function updateGrandTotal() {
     let total = 0;
     const rows = document.querySelectorAll("#inventoryTable tbody tr");
-
-    rows.forEach(row => {
-      const cells = row.querySelectorAll("td");
-      if (cells.length !== 9) return;
-      const value = parsePeso(cells[8].innerText);
-      if (!isNaN(value)) total += value;
-    });
-
-    const cashCell = document.getElementById("cashOnHand");
-    const onlineCell = document.getElementById("onlinePayment");
-
-    const cash = total;
-    const online = parsePeso(onlineCell.innerText);
-
-    cashCell.innerText = cash ? "₱" + cash.toFixed(2) : "";
-    const grandTotal = cash + online;
-    const grandCell = document.getElementById("grandTotal");
-    grandCell.innerText = grandTotal ? "₱" + grandTotal.toFixed(2) : "";
-  }
-
-  function computeAll() {
-    const rows = document.querySelectorAll("#inventoryTable tbody tr");
     rows.forEach(row => {
       if (!row.classList.contains("summary-row")) {
-        recalculateRow(row);
-      }
-    });
-    updateGrandTotal();
-  }
-
-  // Enter key navigation to next editable cell below
-  document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {
-    cell.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const row = this.parentElement;
-        const cellIndex = Array.from(row.children).indexOf(this);
-        const nextRow = row.nextElementSibling;
-        if (nextRow && nextRow.children[cellIndex] && nextRow.children[cellIndex].getAttribute("contenteditable") === "true") {
-          nextRow.children[cellIndex].focus();
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 9) {
+          total += parsePeso(cells[8].innerText);
         }
       }
     });
+
+    const cashCell = document.getElementById("cashOnHandCell");
+    const onlineCell = document.getElementById("onlinePaymentCell");
+    const grandCell = document.getElementById("grandTotalCell");
+
+    if (cashCell) {
+      const cashText = total ? "₱" + total.toFixed(2) : "";
+      if (cashCell.innerText != cashText) {
+        cashCell.innerText = cashText;
+        highlightCell(cashCell);
+      }
+    }
+
+    const online = onlineCell ? parsePeso(onlineCell.innerText) : 0;
+    const grandTotal = total + online;
+
+    if (grandCell) {
+      const grandText = grandTotal ? "₱" + grandTotal.toFixed(2) : "";
+      if (grandCell.innerText != grandText) {
+        grandCell.innerText = grandText;
+        highlightCell(grandCell);
+      }
+    }
+  }
+
+  function computeAll() {
+    computeTotals();
+    updateGrandTotal();
+  }
+
+  // Optional: allow Enter key to move to next editable cell
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const editable = Array.from(document.querySelectorAll('td[contenteditable="true"]'));
+      const index = editable.indexOf(document.activeElement);
+      if (index >= 0 && index < editable.length - 1) {
+        editable[index + 1].focus();
+      }
+    }
   });
 </script>
+
 </body>
 </html>

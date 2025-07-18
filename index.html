@@ -133,7 +133,9 @@
     }
 
     th:nth-child(5), td:nth-child(5),
-    th:nth-child(7), td:nth-child(7) {
+    th:nth-child(7), td:nth-child(7),
+    th:nth-child(8), td:nth-child(8),
+    th:nth-child(9), td:nth-child(9) {
       width: 90px;
       min-width: 90px;
       max-width: 90px;
@@ -160,7 +162,6 @@
       color: #4e342e;
     }
 
-    /* Print Styles */
     @media print {
       body {
         background: white !important;
@@ -216,7 +217,6 @@
       }
     }
 
-    /* Responsive for Tablets and Smaller */
     @media (max-width: 1280px) {
       .container {
         max-width: 100%;
@@ -624,92 +624,59 @@
   <td contenteditable="true"></td>
   <td contenteditable="false"></td>
 </tr>
-
+          <!-- Summary Rows -->
           <tr class="summary-row">
-            <td colspan="8">CASH ONHAND:</td>
-            <td id="cashOnHand" contenteditable="true"></td>
+            <td colspan="8">CASH ONHAND</td>
+            <td contenteditable="true" id="cashOnhand"></td>
           </tr>
           <tr class="summary-row">
-            <td colspan="8">ONLINE PAYMENT:</td>
-            <td id="onlinePayment" contenteditable="true"></td>
+            <td colspan="8">ONLINE PAYMENT</td>
+            <td contenteditable="true" id="onlinePayment"></td>
           </tr>
-          <tr>
-            <td colspan="8" style="text-align: right;">GRAND TOTAL:</td>
-            <td id="grandTotal" contenteditable="false"></td>
+          <tr class="summary-row">
+            <td colspan="8">GRAND TOTAL</td>
+            <td id="grandTotal"></td>
           </tr>
-
         </tbody>
       </table>
     </div>
   </div>
-<script>
-  function parsePeso(pesoStr) {
-    return parseFloat(String(pesoStr).replace(/[₱,]/g, "")) || 0;
-  }
 
-  function recalculateRow(row) {
-    const cells = row.querySelectorAll("td");
-    if (cells.length < 9) return;
+  <script>
+    function computeAll() {
+      const table = document.getElementById("inventoryTable");
+      const rows = table.querySelectorAll("tbody tr");
+      let grandTotal = 0;
 
-    const price = parsePeso(cells[1].innerText);
-    const beginning = parseFloat(cells[2].innerText) || 0;
-    const delivery = parseFloat(cells[3].innerText) || 0;
-    const ending = parseFloat(cells[5].innerText) || 0;
-    const spoilage = parseFloat(cells[6].innerText) || 0;
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll("td");
 
-    const totalOrders = beginning + delivery;
-    const sold = totalOrders - ending - spoilage;
-    const total = sold * price;
+        // Skip summary rows
+        if (row.classList.contains("summary-row")) return;
 
-    cells[4].innerText = totalOrders || "";
-    cells[7].innerText = sold || "";
-    cells[8].innerText = total ? "₱" + total.toFixed(2) : "";
-  }
+        const price = parseFloat(cells[1].textContent) || 0;
+        const beginning = parseFloat(cells[2].textContent) || 0;
+        const delivery = parseFloat(cells[3].textContent) || 0;
+        const ending = parseFloat(cells[5].textContent) || 0;
+        const spoilage = parseFloat(cells[6].textContent) || 0;
 
-  function updateGrandTotal() {
-    let total = 0;
-    const rows = document.querySelectorAll("#inventoryTable tbody tr");
+        const totalOrders = beginning + delivery;
+        const sold = totalOrders - (ending + spoilage);
+        const total = sold * price;
 
-    rows.forEach(row => {
-      const cells = row.querySelectorAll("td");
-      if (cells.length !== 9) return;
-      const value = parsePeso(cells[8].innerText);
-      if (!isNaN(value)) total += value;
-    });
+        cells[4].textContent = totalOrders;
+        cells[7].textContent = sold;
+        cells[8].textContent = total.toFixed(2);
 
-    const cash = parsePeso(document.getElementById("cashOnHand").innerText);
-    const online = parsePeso(document.getElementById("onlinePayment").innerText);
+        grandTotal += total;
+      });
 
-    total += cash + online;
+      const cash = parseFloat(document.getElementById("cashOnhand").textContent) || 0;
+      const online = parseFloat(document.getElementById("onlinePayment").textContent) || 0;
+      const finalTotal = grandTotal + cash + online;
 
-    const grandCell = document.getElementById("grandTotal");
-    grandCell.innerText = total ? "₱" + total.toFixed(2) : "";
-  }
-
-  function computeAll() {
-    const rows = document.querySelectorAll("#inventoryTable tbody tr");
-    rows.forEach(row => {
-      if (!row.classList.contains("summary-row")) {
-        recalculateRow(row);
-      }
-    });
-    updateGrandTotal();
-  }
-
-  // Enter key navigation to next cell down
-  document.querySelectorAll("#inventoryTable tbody td[contenteditable='true']").forEach(cell => {
-    cell.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const row = this.parentElement;
-        const cellIndex = Array.from(row.children).indexOf(this);
-        const nextRow = row.nextElementSibling;
-        if (nextRow && nextRow.children[cellIndex] && nextRow.children[cellIndex].getAttribute("contenteditable") === "true") {
-          nextRow.children[cellIndex].focus();
-        }
-      }
-    });
-  });
-</script>
+      document.getElementById("grandTotal").textContent = finalTotal.toFixed(2);
+    }
+  </script>
 </body>
 </html>

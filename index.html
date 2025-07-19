@@ -784,6 +784,32 @@
       }
     }
   });
+
+document.addEventListener("DOMContentLoaded", function () {
+  const numericCells = document.querySelectorAll("td[contenteditable='true']");
+
+  numericCells.forEach(cell => {
+    // Prevent typing non-numeric characters
+    cell.addEventListener("keypress", function (e) {
+      const allowedKeys = /[0-9.]/
+      const specialKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
+
+      if (!allowedKeys.test(e.key) && !specialKeys.includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    // Format on blur
+    cell.addEventListener("blur", function () {
+      const value = parseFloat(cell.innerText.replace(/[^\d.]/g, ''));
+      if (cell.id === "onlinePaymentCell") {
+        cell.innerText = isNaN(value) ? "" : "₱" + value.toFixed(2);
+      } else {
+        cell.innerText = isNaN(value) ? "" : value;
+      }
+    });
+  });
+});
 </script>
 
 </body>
